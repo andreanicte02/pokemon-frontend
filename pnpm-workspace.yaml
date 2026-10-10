@@ -1,0 +1,9 @@
+# Las dependencias van pinneadas a versión exacta — nada de ^ ni ~
+# (reproducibilidad + supply-chain). Ver .github/instructions/code-review.instructions.md
+# pnpm 12 ya no lee esta opción de .npmrc: vive acá.
+saveExact: true
+
+# pnpm bloquea los scripts de instalación de las dependencias salvo los aprobados acá
+# (`pnpm approve-builds <paquete>`). esbuild (lo usa Vite) baja su binario en el postinstall.
+allowBuilds:
+  esbuild: true

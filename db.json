@@ -1,0 +1,352 @@
+{
+  "pokemon": [
+    {
+      "id": 1,
+      "pokedexId": 25,
+      "species": "pikachu",
+      "types": [
+        "electric"
+      ],
+      "nickname": "Pika",
+      "level": 35,
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "pokedexId": 6,
+      "species": "charizard",
+      "types": [
+        "fire",
+        "flying"
+      ],
+      "nickname": "Blaze",
+      "level": 62,
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "pokedexId": 9,
+      "species": "blastoise",
+      "types": [
+        "water"
+      ],
+      "nickname": "Tanque",
+      "level": 58,
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "pokedexId": 3,
+      "species": "venusaur",
+      "types": [
+        "grass",
+        "poison"
+      ],
+      "nickname": "Bulbo",
+      "level": 55,
+      "notes": ""
+    },
+    {
+      "id": 5,
+      "pokedexId": 94,
+      "species": "gengar",
+      "types": [
+        "ghost",
+        "poison"
+      ],
+      "nickname": "Sombra",
+      "level": 48,
+      "notes": ""
+    },
+    {
+      "id": 6,
+      "pokedexId": 143,
+      "species": "snorlax",
+      "types": [
+        "normal"
+      ],
+      "nickname": "Siesta",
+      "level": 40,
+      "notes": ""
+    },
+    {
+      "id": 7,
+      "pokedexId": 131,
+      "species": "lapras",
+      "types": [
+        "water",
+        "ice"
+      ],
+      "nickname": "Nessie",
+      "level": 44,
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "pokedexId": 149,
+      "species": "dragonite",
+      "types": [
+        "dragon",
+        "flying"
+      ],
+      "nickname": "Draco",
+      "level": 70,
+      "notes": ""
+    },
+    {
+      "id": 9,
+      "pokedexId": 121,
+      "species": "starmie",
+      "types": [
+        "water",
+        "psychic"
+      ],
+      "nickname": "Estrella",
+      "level": 42,
+      "notes": ""
+    },
+    {
+      "id": 10,
+      "pokedexId": 65,
+      "species": "alakazam",
+      "types": [
+        "psychic"
+      ],
+      "nickname": "Cuchara",
+      "level": 50,
+      "notes": ""
+    },
+    {
+      "id": 11,
+      "pokedexId": 68,
+      "species": "machamp",
+      "types": [
+        "fighting"
+      ],
+      "nickname": "Brazos",
+      "level": 47,
+      "notes": ""
+    },
+    {
+      "id": 12,
+      "pokedexId": 130,
+      "species": "gyarados",
+      "types": [
+        "water",
+        "flying"
+      ],
+      "nickname": "Furia",
+      "level": 53,
+      "notes": ""
+    },
+    {
+      "id": 13,
+      "pokedexId": 59,
+      "species": "arcanine",
+      "types": [
+        "fire"
+      ],
+      "nickname": "Rayo",
+      "level": 45,
+      "notes": ""
+    },
+    {
+      "id": 14,
+      "pokedexId": 76,
+      "species": "golem",
+      "types": [
+        "rock",
+        "ground"
+      ],
+      "nickname": "Roca",
+      "level": 41,
+      "notes": ""
+    }
+  ],
+  "profiles": [
+    {
+      "id": "ash",
+      "name": "Ash Ketchum",
+      "region": "kanto",
+      "hometown": "Pueblo Paleta",
+      "isGymLeader": false,
+      "gymName": "",
+      "badgeName": "",
+      "avatarId": 25,
+      "badges": [
+        "Roca",
+        "Cascada",
+        "Trueno",
+        "Arcoíris",
+        "Alma",
+        "Pantano",
+        "Volcán",
+        "Tierra"
+      ]
+    },
+    {
+      "id": "misty",
+      "name": "Misty",
+      "region": "kanto",
+      "hometown": "Ciudad Celeste",
+      "isGymLeader": true,
+      "gymName": "Gimnasio Celeste",
+      "badgeName": "Medalla Cascada",
+      "avatarId": 121,
+      "badges": [
+        "Roca"
+      ]
+    }
+  ],
+  "tournaments": [
+    {
+      "id": 1,
+      "name": "Copa Añil",
+      "closesAt": "2026-11-30",
+      "levelCap": 40
+    },
+    {
+      "id": 2,
+      "name": "Liga Meseta Añil",
+      "closesAt": "2026-12-15",
+      "levelCap": 60
+    },
+    {
+      "id": 3,
+      "name": "Torneo Ciudad Azafrán",
+      "closesAt": "2027-01-20",
+      "levelCap": 50
+    }
+  ],
+  "registrations": [
+    {
+      "id": 1,
+      "tournamentId": 1,
+      "tournamentName": "Copa Añil",
+      "category": "open",
+      "pokemonIds": [
+        1,
+        2
+      ],
+      "nicknames": [
+        "Pika",
+        "Blaze"
+      ],
+      "createdAt": "2026-10-01T10:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "tournamentId": 2,
+      "tournamentName": "Liga Meseta Añil",
+      "category": "rookie",
+      "pokemonIds": [
+        12
+      ],
+      "nicknames": [
+        "Furia"
+      ],
+      "createdAt": "2026-10-02T10:00:00.000Z"
+    },
+    {
+      "id": 3,
+      "tournamentId": 3,
+      "tournamentName": "Torneo Ciudad Azafrán",
+      "category": "open",
+      "pokemonIds": [
+        8,
+        3
+      ],
+      "nicknames": [
+        "Draco",
+        "Tanque"
+      ],
+      "createdAt": "2026-10-03T10:00:00.000Z"
+    },
+    {
+      "id": 4,
+      "tournamentId": 1,
+      "tournamentName": "Copa Añil",
+      "category": "rookie",
+      "pokemonIds": [
+        1
+      ],
+      "nicknames": [
+        "Pika"
+      ],
+      "createdAt": "2026-10-04T10:00:00.000Z"
+    },
+    {
+      "id": 5,
+      "tournamentId": 2,
+      "tournamentName": "Liga Meseta Añil",
+      "category": "open",
+      "pokemonIds": [
+        6,
+        11,
+        13
+      ],
+      "nicknames": [
+        "Siesta",
+        "Brazos",
+        "Rayo"
+      ],
+      "createdAt": "2026-10-05T10:00:00.000Z"
+    },
+    {
+      "id": 6,
+      "tournamentId": 3,
+      "tournamentName": "Torneo Ciudad Azafrán",
+      "category": "rookie",
+      "pokemonIds": [
+        9
+      ],
+      "nicknames": [
+        "Estrella"
+      ],
+      "createdAt": "2026-10-06T10:00:00.000Z"
+    },
+    {
+      "id": 7,
+      "tournamentId": 1,
+      "tournamentName": "Copa Añil",
+      "category": "open",
+      "pokemonIds": [
+        5,
+        7
+      ],
+      "nicknames": [
+        "Sombra",
+        "Nessie"
+      ],
+      "createdAt": "2026-10-07T10:00:00.000Z"
+    },
+    {
+      "id": 8,
+      "tournamentId": 2,
+      "tournamentName": "Liga Meseta Añil",
+      "category": "rookie",
+      "pokemonIds": [
+        14,
+        4
+      ],
+      "nicknames": [
+        "Roca",
+        "Bulbo"
+      ],
+      "createdAt": "2026-10-08T10:00:00.000Z"
+    },
+    {
+      "id": 9,
+      "tournamentId": 3,
+      "tournamentName": "Torneo Ciudad Azafrán",
+      "category": "open",
+      "pokemonIds": [
+        10
+      ],
+      "nicknames": [
+        "Cuchara"
+      ],
+      "createdAt": "2026-10-09T10:00:00.000Z"
+    }
+  ]
+}

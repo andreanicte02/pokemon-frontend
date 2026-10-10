@@ -1,0 +1,77 @@
+name: Claude Code
+
+# Modo interactivo: Claude NO corre solo. Solo responde cuando alguien
+# menciona @claude en un comentario de un issue, de un PR o de un review.
+# Si nadie lo menciona, este workflow no consume ni un minuto de Actions.
+#
+# Requisito: el secret CLAUDE_CODE_OAUTH_TOKEN (se genera con `claude setup-token`).
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+
+# Una corrida por hilo: si se comenta dos veces seguidas, la anterior se cancela
+# en vez de levantar dos runners en paralelo.
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  claude:
+    # Filtro barato: evita arrancar un runner por cada comentario del repo.
+    # La action igual vuelve a verificar la trigger phrase antes de responder.
+    if: |
+      contains(github.event.comment.body, '@claude') ||
+      contains(github.event.review.body, '@claude')
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # Solo lectura sobre el código: `contents: read` es lo que hace imposible
+    # que Claude pushee un commit — no es una convención, GitHub le rechaza el
+    # push. `pull-requests`/`issues` en write NO permiten tocar código: son los
+    # que le dejan escribir el comentario con el review.
+    permissions:
+      contents: read # leer el código; NO puede pushear
+      pull-requests: write # comentar en el PR
+      issues: write # comentar en issues
+      actions: read # leer los resultados de CI
+      # Sin id-token: con claude_code_oauth_token + github_token no hace falta
+      # (solo se usa con federación OIDC) y así Claude no puede pedir tokens OIDC.
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # El review necesita comparar contra la base del PR: con el checkout
+          # superficial por default no hay historia para `git diff`.
+          fetch-depth: 0
+
+      - uses: anthropics/claude-code-action@fd1c128679612beff4ca259c78021c506e8aa7a7 # v1.0.237
+        with:
+          # Token de suscripción (generado con `claude setup-token`).
+          # Si algún día se pasa a API key, cambiar por:
+          #   anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Token propio de Actions en vez de instalar la Claude GitHub App
+          # (útil si la organización exige aprobar apps de terceros).
+          # Concesión: los comentarios los firma `github-actions[bot]`.
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # --max-turns acota el costo de un pedido mal formulado.
+          # Las reglas de review NO se repiten acá: viven en
+          # .github/instructions/code-review.instructions.md y en CLAUDE.md.
+          # El prompt solo le ordena leerlas primero: una sola fuente de verdad.
+          # Herramientas: Read/Grep/Glob en vez de cat/head/tail/find/ls/grep por
+          # bash. Las reglas de ruta solo aplican a Read/Grep/Glob: con `cat` podría
+          # leer /proc/self/environ (el token) y publicarlo en un comentario;
+          # `find -exec` ejecuta cualquier cosa. En git:
+          # - sin --output (y su abreviatura --out): escribe archivos, p. ej.
+          #   .git/config con contenido del PR → ejecución de código.
+          # - sin --ext-diff/--textconv: ejecutan programas.
+          # - sin --no-index ni rutas fuera del repo (/…, ../…, ~…): leerían
+          #   cualquier archivo del runner.
+          # - sin leer .git/ con Read: actions/checkout guarda el token en .git/config.
+          claude_args: |
+            --max-turns 40
+            --allowedTools "Read,Grep,Glob,Bash(git log:*),Bash(git diff:*),Bash(git show:*)"
+            --disallowedTools "Edit,Write,NotebookEdit,Read(./.git/**),Read(//proc/**),Read(//dev/**),Read(//home/runner/.gitconfig),Read(//home/runner/work/_temp/**),Read(//home/runner/.claude/**),Read(//home/runner/runners/**),Read(//home/runner/actions-runner/**),Bash(git *--out*),Bash(git *--ext*),Bash(git *--textc*),Bash(git *--no-index*),Bash(git * /*),Bash(git *../*),Bash(git * ~*)"
+            --append-system-prompt "Respondé siempre en español (español latinoamericano). El código, los nombres de variables/funciones y los términos técnicos establecidos se mantienen en inglés. Antes de revisar, leé SIEMPRE .github/instructions/code-review.instructions.md (principios, reglas firmes y reglas de revisión), CLAUDE.md (convenciones del repo) y el 'Mapa de prácticas' del README (el ejemplo correcto de cada patrón). Esa es tu checklist de review: no inventes reglas nuevas ni repitas buenas prácticas obvias de React sin una violación concreta. Revisá SOLO las líneas que el PR cambió: el alcance de los hallazgos es el diff, no el repo. Podés leer archivos que el PR no tocó como contexto para juzgar el cambio, pero NO reportes hallazgos sobre código preexistente que el PR no modificó; si algo preexistente es realmente grave, mencionalo al final en una línea, aparte. Señalá archivo y línea, y ordená los hallazgos de más a menos grave. Si no encontrás nada relevante, decilo en una línea en vez de rellenar."

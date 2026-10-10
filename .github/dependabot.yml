@@ -1,0 +1,48 @@
+version: 2
+
+# UN SOLO PR semanal de rutina con todo: dependencias (pnpm) + GitHub Actions.
+#
+# - Seguridad va aparte, a propósito: activar en Settings "Dependabot security
+#   updates" + "Grouped security updates". Abren UN PR extra solo cuando hay un
+#   CVE con parche, sin esperar al día de rutina ni al cooldown.
+# - Cooldown de 7 días: nada recién publicado entra al PR de rutina (defensa
+#   contra versiones comprometidas).
+# - Si alguien commitea en el PR, Dependabot deja de actualizarlo: la idea es
+#   mergearlo esa misma semana.
+multi-ecosystem-groups:
+  dependencias:
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "08:00"
+      timezone: "America/Mexico_City"
+    labels:
+      - "dependencies"
+
+updates:
+  # Dependencias de la app. El ecosistema se llama "npm" pero Dependabot detecta
+  # pnpm-lock.yaml y actualiza ese lockfile.
+  - package-ecosystem: "npm"
+    directory: "/"
+    multi-ecosystem-group: "dependencias"
+    patterns: ["*"]
+    # El repo pinea versiones exactas (saveExact en pnpm-workspace.yaml). "increase" sube
+    # el requisito a la versión nueva sin ensanchar a un rango ^/~.
+    versioning-strategy: increase
+    cooldown:
+      default-days: 7
+    ignore:
+      # Ningún major automático: en React 19 + MUI 7 un major nunca es
+      # "mergear un PR", es una tarea con su propia validación visual.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
+
+  # GitHub Actions — fijadas por SHA (con la versión en un comentario) para que
+  # una etiqueta movida no cambie el código que corre con los secrets.
+  # Dependabot actualiza SHA y comentario juntos.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    multi-ecosystem-group: "dependencias"
+    patterns: ["*"]
+    cooldown:
+      default-days: 7

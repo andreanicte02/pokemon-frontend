@@ -1,0 +1,71 @@
+name: Audit de dependencias
+
+# Gate de dependencias antes del merge: si el PR deja un
+# advisory high o critical en dependencias de producción, el check sale en rojo.
+# Solo lee el lockfile (no instala nada), así que tarda segundos.
+# Las excepciones viven en `.audit-exceptions.json`, con fecha de vencimiento.
+on:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write # solo para comentar el resultado en el PR cuando falla
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # El gate corre `pnpm audit` (solo lee el lockfile, no instala). Versión: `packageManager`.
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+
+      - name: pnpm audit (high/critical en dependencias de producción)
+        id: scan
+        # `shell: bash` activa pipefail: sin eso el `| tee` se come el exit code y el check nunca falla.
+        shell: bash
+        run: node scripts/audit-gate.mjs 2>&1 | tee "$RUNNER_TEMP/audit.log"
+
+      # Si el gate falla, deja el reporte y qué hacer como comentario en el PR
+      # (y en el resumen del run). Si ya había un comentario de este check, lo actualiza.
+      - name: Comentar el resultado en el PR
+        if: failure() && steps.scan.outcome == 'failure' && github.event_name == 'pull_request'
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        run: |
+          {
+            echo "<!-- audit -->"
+            echo "### ❌ \`audit\` no pasó: el gate de dependencias bloqueó este PR"
+            echo
+            echo "El reporte de abajo dice por qué. Lo más común es un advisory high o critical en dependencias de producción."
+            echo
+            echo "**Qué hacer:**"
+            echo "- **Subir la dependencia** a una versión sin el advisory (\`package.json\` y \`pnpm-lock.yaml\` juntos). Si es transitiva, \`pnpm audit --fix\` sin majors."
+            echo "- **No hay arreglo todavía:** agregar una excepción con motivo y fecha de vencimiento en \`.audit-exceptions.json\`."
+            echo "- Para verlo en local: \`node scripts/audit-gate.mjs\`."
+            echo
+            echo "<details open><summary>Reporte del gate</summary>"
+            echo
+            echo '```'
+            tail -c 50000 "$RUNNER_TEMP/audit.log"
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "[Log completo]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID) · [Cómo funciona este check]($GITHUB_SERVER_URL/$GITHUB_REPOSITORY/blob/HEAD/README.md#checks-de-seguridad)"
+          } > "$RUNNER_TEMP/comentario.md"
+          cat "$RUNNER_TEMP/comentario.md" >> "$GITHUB_STEP_SUMMARY"
+          previo=$(gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" --paginate \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | contains("<!-- audit -->"))) | .id' | tail -n 1)
+          if [ -n "$previo" ]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$previo" -F body=@"$RUNNER_TEMP/comentario.md" > /dev/null
+          else
+            gh pr comment "$PR" --repo "$GITHUB_REPOSITORY" --body-file "$RUNNER_TEMP/comentario.md"
+          fi
