@@ -46,7 +46,7 @@ jobs:
           # superficial por default no hay historia para `git diff`.
           fetch-depth: 0
 
-      - uses: anthropics/claude-code-action@fd1c128679612beff4ca259c78021c506e8aa7a7 # v1.0.237
+      - uses: anthropics/claude-code-action@6fed3ca145920b639991cb756090506e1bcaf515 # v1.0.245
         with:
           # Token de suscripción (generado con `claude setup-token`).
           # Si algún día se pasa a API key, cambiar por:
